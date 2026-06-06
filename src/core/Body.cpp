@@ -2,9 +2,9 @@
 
 Body::Body()
 {
-    position = Vec2(0, 0);
-    velocity = Vec2(0, 0);
-    acceleration = Vec2(0, 0);
+    position = Vector(0, 0);
+    velocity = Vector(0, 0);
+    acceleration = Vector(0, 0);
 
     mass = 1.0f;
     radius = 10.0f;

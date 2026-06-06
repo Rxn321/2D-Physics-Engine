@@ -4,9 +4,9 @@
 
 struct Body
 {
-    Vec2 position;
-    Vec2 velocity;
-    Vec2 acceleration;
+    Vector position;
+    Vector velocity;
+    Vector acceleration;
 
     float mass;
     float radius; // useful for circle collisions later
