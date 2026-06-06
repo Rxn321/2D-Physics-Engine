@@ -1,4 +1,4 @@
-#include "Vector.hpp"
+#include "Vec2.hpp"
 
 // Constructors
 Vec2::Vec2() : x(0.0f), y(0.0f) {}

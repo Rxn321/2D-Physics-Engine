@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Vector.hpp"
+#include "Vec2.hpp"
 
 struct Body
 {
-    Vector position;
-    Vector velocity;
-    Vector acceleration;
+    Vec2 position;
+    Vec2 velocity;
+    Vec2 acceleration;
 
     float mass;
     float radius; // useful for circle collisions later
