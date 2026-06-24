@@ -4,13 +4,13 @@
     <ClCompile Include="C:\Users\User\Desktop\Personal_Projects\Summer2026\2D-Physics-Engine\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\User\Desktop\Personal_Projects\Summer2026\2D-Physics-Engine\src\core\Vec2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="C:\Users\User\Desktop\Personal_Projects\Summer2026\2D-Physics-Engine\src\core\Body.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\User\Desktop\Personal_Projects\Summer2026\2D-Physics-Engine\src\core\PhysicsWorld.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\User\Desktop\Personal_Projects\Summer2026\2D-Physics-Engine\src\core\Vec2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
