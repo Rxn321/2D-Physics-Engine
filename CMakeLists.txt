@@ -7,14 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 include_directories(include)
-
-
-add_executable(
-    PhysicsEngine
-
-    main.cpp
-
-    src/core/Vec2.cpp
-    src/core/Body.cpp
-    src/core/PhysicsWorld.cpp
+file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
+    ${CMAKE_SOURCE_DIR}/src/*.cpp
 )
+
+add_executable(PhysicsEngine main.cpp ${SRC_FILES})
