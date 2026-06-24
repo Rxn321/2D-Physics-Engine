@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\User\Desktop\Personal_Projects\Summer2026\2D-Physics-Engine\build\CMakeFiles\99332dbd58a896d82f886c596f4d2ca0\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{3E8522A8-7843-3BDD-A4F3-574C70C41133}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

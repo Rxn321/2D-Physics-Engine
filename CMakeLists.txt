@@ -14,7 +14,7 @@ add_executable(
 
     main.cpp
 
-    src/Vec2.cpp
-    src/Body.cpp
-    src/PhysicsWorld.cppc
+    src/core/Vec2.cpp
+    src/core/Body.cpp
+    src/core/PhysicsWorld.cpp
 )
