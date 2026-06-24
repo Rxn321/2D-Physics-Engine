@@ -16,5 +16,5 @@ add_executable(
 
     src/Vec2.cpp
     src/Body.cpp
-    src/PhysicsWorld.cpp
+    src/PhysicsWorld.cppc
 )
