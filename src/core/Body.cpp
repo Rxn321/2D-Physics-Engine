@@ -14,4 +14,10 @@ void Body::Update(float dt)
 {
     velocity += acceleration * dt;
     position += velocity * dt;
+    acceleration = Vec2(0,0);
+}
+
+void Body::ApplyForce(Vec2 force)
+{
+    acceleration += force / mass;
 }

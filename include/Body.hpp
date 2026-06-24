@@ -13,4 +13,5 @@ struct Body
 
     Body();
     void Update(float dt);
+    void ApplyForce(Vec2 force);
 };
