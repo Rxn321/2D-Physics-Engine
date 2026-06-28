@@ -12,12 +12,13 @@ file(GLOB_RECURSE SOURCES
     src/renderer/*.cpp
 )
 
-add_executable(PhysicsEngine ${SOURCES} external/glad/glad.c)
+add_executable(PhysicsEngine ${SOURCES} external/glad/src/glad.c)
 
 target_include_directories(PhysicsEngine PRIVATE
     include
     external/glad
     external/glfw/include
+    external/glad/src/glad.c
 )
 
 
