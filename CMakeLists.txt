@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 file(GLOB_RECURSE SOURCES
     src/*.cpp
     src/core/*.cpp
-    src/renderer/*.cpp
+    src/render/*.cpp
 )
 
 add_executable(PhysicsEngine ${SOURCES} external/glad/src/glad.c)
@@ -18,7 +18,7 @@ target_include_directories(PhysicsEngine PRIVATE
     include
     external/glad
     external/glfw/include
-    external/glad/src/glad.c
+    external/glad/include
 )
 
 
