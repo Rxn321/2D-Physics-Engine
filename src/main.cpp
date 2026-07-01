@@ -1,20 +1,74 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include <string>
+#include <fstream>
+#include <sstream>
 #include <iostream>
+
+#include "Renderer.hpp"
+#include "Body.hpp"
+#include "Shader.hpp"
 #include "PhysicsWorld.hpp"
+
+std::string LoadFile(const std::string& path)
+{
+    std::ifstream file(path);
+    std::stringstream ss;
+    ss << file.rdbuf();
+    return ss.str();
+}
 
 int main()
 {
-    PhysicsWorld world;
-    Body ball;
-    
-    ball.position = Vec2(0, 0);
-    
-    world.AddBody(&ball);
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    for(int i = 0; i < 10; i++)
+    GLFWwindow* window = glfwCreateWindow(800, 600, "2D Physics Engine", nullptr, nullptr);
+    if (!window)
     {
-        world.Update(0.016f);
-
-        std::cout
-            << "Pos: " << ball.position.x << ", " << ball.position.y << "\n";
+        std::cout << "Failed to create GLFW window\n";
+        glfwTerminate();
+        return -1;
     }
+    glfwMakeContextCurrent(window);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD\n";
+        return -1;
+    }
+
+    std::string vertexSrc = LoadFile("../shaders/circle.vert");
+    std::string fragmentSrc = LoadFile("../shaders/circle.frag");
+
+    Shader shader(vertexSrc, fragmentSrc);
+    Renderer renderer;
+    renderer.Init(&shader);
+
+    PhysicsWorld physicsWorld;
+
+    Body body;
+    physicsWorld.AddBody(&body);
+
+    while (!glfwWindowShouldClose(window))
+    {
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        physicsWorld.Update(0.016f);
+
+        for (Body* b : physicsWorld.bodies)
+        {
+            renderer.DrawBody(*b);
+        }
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    glfwTerminate();
+    return 0;
 }
