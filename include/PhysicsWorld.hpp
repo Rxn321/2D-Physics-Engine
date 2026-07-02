@@ -15,4 +15,6 @@ struct PhysicsWorld
     void AddBody(Body* body);
 
     void Update(float dt);
+
+    void ResolveCollisions();
 };

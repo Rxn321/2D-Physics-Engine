@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <random>
 
 #include "Renderer.hpp"
 #include "Body.hpp"
@@ -50,8 +51,31 @@ int main()
 
     PhysicsWorld physicsWorld;
 
-    Body body;
-    physicsWorld.AddBody(&body);
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> posX(-0.8f, 0.8f);   // spawn x range
+    std::uniform_real_distribution<float> posY(0.5f, 0.9f);    // spawn y range (near top)
+    std::uniform_real_distribution<float> radiusDist(0.05f, 0.15f); // vary size
+
+    std::vector<Body> bodyList;
+    bodyList.reserve(5);
+
+    for (int i = 0; i < 5; i++)
+    {
+        Body b;
+        b.position = Vec2(posX(gen), posY(gen));
+        b.radius = radiusDist(gen);
+        b.mass = b.radius * 10.0f;
+        bodyList.push_back(b);
+    }
+
+
+
+    for (Body& b : bodyList)
+    {
+        physicsWorld.AddBody(&b); // pointers
+    }
 
     while (!glfwWindowShouldClose(window))
     {

@@ -25,4 +25,6 @@ struct Vec2
     Vec2 Normalize() const;
     float Dot(const Vec2& other) const;
     float Distance(const Vec2& other) const;
+
+    float Length() const;
 };

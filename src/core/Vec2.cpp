@@ -81,3 +81,8 @@ float Vec2::Distance(const Vec2& other) const
 {
     return (*this - other).Magnitude();
 }
+
+float Vec2::Length() const
+{
+    return sqrtf(x * x + y * y);
+}
