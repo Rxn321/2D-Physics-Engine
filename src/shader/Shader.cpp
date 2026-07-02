@@ -4,7 +4,7 @@
 #include <iostream>
 
 Shader::Shader(const std::string& vertexSrc, const std::string& fragmentSrc)
-{
+{       
     unsigned int vertex = CompileShader(GL_VERTEX_SHADER, vertexSrc);
     unsigned int fragment = CompileShader(GL_FRAGMENT_SHADER, fragmentSrc);
 
@@ -58,4 +58,11 @@ void Shader::SetVec2(const std::string& name, float x, float y)
     GLint loc = glGetUniformLocation(ID, name.c_str());
     if (loc != -1)
         glUniform2f(loc, x, y);
+}
+
+void Shader::SetFloat(const std::string& name, float value)
+{
+    GLint loc = glGetUniformLocation(ID, name.c_str());
+    if (loc != -1)
+        glUniform1f(loc, value);
 }

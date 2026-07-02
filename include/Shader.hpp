@@ -12,6 +12,7 @@ public:
 
     void Use();
     void SetVec2(const std::string& name, float x, float y);
+    void SetFloat(const std::string& name, float value);
 
 private:
     unsigned int CompileShader(unsigned int type, const std::string& src);

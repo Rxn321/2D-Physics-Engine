@@ -36,9 +36,10 @@ static void GenerateCircle()
 }
 
 
-void Renderer::Init(Shader* s)
+void Renderer::Init(Shader* s, float aspectRatio)
 {
     shader = s;
+    aspect = aspectRatio;
 
     GenerateCircle();
 
@@ -65,6 +66,9 @@ void Renderer::Init(Shader* s)
 void Renderer::DrawBody(const Body& body)
 {
     shader->Use();
+    shader->SetVec2("uPos", body.position.x, body.position.y);
+    shader->SetFloat("uScale", body.radius / 0.1f);
+    shader->SetFloat("uAspect", aspect);
 
     // send position to GPU
     shader->SetVec2("uPos", body.position.x, body.position.y);

@@ -47,7 +47,7 @@ int main()
 
     Shader shader(vertexSrc, fragmentSrc);
     Renderer renderer;
-    renderer.Init(&shader);
+    renderer.Init(&shader, 800.0f / 600.0f);
 
     PhysicsWorld physicsWorld;
 
