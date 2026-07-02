@@ -7,7 +7,7 @@ Core 2D physics module for my orbital motion simulation project
 - Click to spawn bodies
 
 ## Build & run
-git clone --recurse-submodules <repo-url>  
+git clone --recurse-submodules https://github.com/Rxn321/2D-Physics-Engine.git
 cd 2D-Physics-Engine  
 mkdir build && cd build  
 cmake ..  
