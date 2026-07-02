@@ -3,11 +3,10 @@ layout (location = 0) in vec2 aPos;
 
 uniform vec2 uPos;
 uniform float uScale;
-uniform float uAspect;
+uniform mat4 uProjection;
 
 void main()
 {
-    vec2 pos = aPos * uScale;
-    pos.x /= uAspect;
-    gl_Position = vec4(pos + uPos, 0.0, 1.0);
+    vec2 worldPos = aPos * uScale + uPos;
+    gl_Position = uProjection * vec4(worldPos, 0.0, 1.0);
 }

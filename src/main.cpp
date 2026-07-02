@@ -47,16 +47,16 @@ int main()
 
     Shader shader(vertexSrc, fragmentSrc);
     Renderer renderer;
-    renderer.Init(&shader, 800.0f / 600.0f);
+    renderer.Init(&shader);
 
     PhysicsWorld physicsWorld;
 
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> posX(-0.8f, 0.8f);   // spawn x range
-    std::uniform_real_distribution<float> posY(0.5f, 0.9f);    // spawn y range (near top)
-    std::uniform_real_distribution<float> radiusDist(0.05f, 0.15f); // vary size
+    std::uniform_real_distribution<float> posX(-8.0f, 8.0f);   // spawn x range
+    std::uniform_real_distribution<float> posY(3.0f, 6.0f);    // spawn y range (near top)
+    std::uniform_real_distribution<float> radiusDist(0.5f, 1.5f); // vary size
 
     std::vector<Body> bodyList;
     bodyList.reserve(5);

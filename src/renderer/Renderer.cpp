@@ -11,9 +11,21 @@ static float vertices[(SEGMENTS + 2) * 2];
 static unsigned int indices[SEGMENTS * 3];
 
 
+static void MakeOrtho(float* mat, float left, float right, float bottom, float top)
+{
+    for (int i = 0; i < 16; i++) mat[i] = 0.0f;
+
+    mat[0] = 2.0f / (right - left);
+    mat[5] = 2.0f / (top - bottom);
+    mat[10] = -1.0f;
+    mat[12] = -(right + left) / (right - left);
+    mat[13] = -(top + bottom) / (top - bottom);
+    mat[15] = 1.0f;
+}
+
 static void GenerateCircle()
 {
-    float radius = 0.1f;
+    float radius = 1.0f;
 
     // center point
     vertices[0] = 0.0f;
@@ -36,10 +48,10 @@ static void GenerateCircle()
 }
 
 
-void Renderer::Init(Shader* s, float aspectRatio)
+void Renderer::Init(Shader* s)
 {
     shader = s;
-    aspect = aspectRatio;
+    MakeOrtho(projection, -10.0f, 10.0f, -7.5f, 7.5f);
 
     GenerateCircle();
 
@@ -67,18 +79,9 @@ void Renderer::DrawBody(const Body& body)
 {
     shader->Use();
     shader->SetVec2("uPos", body.position.x, body.position.y);
-    shader->SetFloat("uScale", body.radius / 0.1f);
-    shader->SetFloat("uAspect", aspect);
-
-    // send position to GPU
-    shader->SetVec2("uPos", body.position.x, body.position.y);
+    shader->SetFloat("uScale", body.radius);
+    shader->SetMat4("uProjection", projection);
 
     glBindVertexArray(VAO);
-
-    glDrawElements(
-        GL_TRIANGLES,
-        SEGMENTS * 3,
-        GL_UNSIGNED_INT,
-        0
-    );
+    glDrawElements(GL_TRIANGLES, SEGMENTS * 3, GL_UNSIGNED_INT, 0);
 }

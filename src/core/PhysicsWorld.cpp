@@ -2,7 +2,7 @@
 
 PhysicsWorld::PhysicsWorld()
 {
-    gravity = Vec2(0.0f, -1.8f);
+    gravity = Vec2(0.0f, -9.81f);
 }
 
 void PhysicsWorld::AddBody(Body* body)
@@ -18,14 +18,16 @@ void PhysicsWorld::Update(float dt)
         body->Update(dt);
 
         // floor collision
-        float floorY = -1.0f + 0.1f;
+        float floorY = -7.5f + body->radius;
+        float leftX = -10.0f + body->radius;
+        float rightX = 10.0f - body->radius;
+
         if (body->position.y < floorY)
         {
             body->position.y = floorY;
             body->velocity.y *= -0.6f; //loss
         }
         //left
-        float leftX = -1.0f + body->radius;
         if (body->position.x < leftX)
         {
             body->position.x = leftX;
@@ -33,7 +35,6 @@ void PhysicsWorld::Update(float dt)
         }
 
         // right
-        float rightX = 1.0f - body->radius;
         if (body->position.x > rightX)
         {
             body->position.x = rightX;

@@ -66,3 +66,10 @@ void Shader::SetFloat(const std::string& name, float value)
     if (loc != -1)
         glUniform1f(loc, value);
 }
+
+void Shader::SetMat4(const std::string& name, const float* mat)
+{
+    GLint loc = glGetUniformLocation(ID, name.c_str());
+    if (loc != -1)
+        glUniformMatrix4fv(loc, 1, GL_FALSE, mat);
+}
