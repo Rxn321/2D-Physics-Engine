@@ -19,6 +19,46 @@ std::string LoadFile(const std::string& path)
     ss << file.rdbuf();
     return ss.str();
 }
+// interactive clikc
+Vec2 ScreenToWorld(double mouseX, double mouseY, int windowWidth, int windowHeight)
+{
+    float nx = (float)(mouseX / windowWidth);
+    float ny = (float)(mouseY / windowHeight);
+
+    // convert to world
+    float worldX = (nx * 2.0f - 1.0f) * 10.0f;
+    float worldY = (1.0f - ny * 2.0f) * 7.5f;
+
+    return Vec2(worldX, worldY);
+}
+
+struct AppState
+{
+    std::vector<Body>* bodyList;
+    PhysicsWorld* world;
+    int width, height;
+};
+
+void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    {
+        AppState* state = (AppState*)glfwGetWindowUserPointer(window);
+
+        double mouseX, mouseY;
+        glfwGetCursorPos(window, &mouseX, &mouseY);
+
+        Vec2 worldPos = ScreenToWorld(mouseX, mouseY, state->width, state->height);
+
+        Body b;
+        b.position = worldPos;
+        b.radius = 1.0f;
+        b.mass = b.radius * 10.0f;
+
+        state->bodyList->push_back(b);
+        state->world->AddBody(&state->bodyList->back());
+    }
+}
 
 int main()
 {
@@ -59,7 +99,7 @@ int main()
     std::uniform_real_distribution<float> radiusDist(0.5f, 1.5f); // vary size
 
     std::vector<Body> bodyList;
-    bodyList.reserve(5);
+    bodyList.reserve(67);
 
     for (int i = 0; i < 5; i++)
     {
@@ -76,6 +116,15 @@ int main()
     {
         physicsWorld.AddBody(&b); // pointers
     }
+    
+    AppState state;
+    state.bodyList = &bodyList;
+    state.world = &physicsWorld;
+    state.width = 800;
+    state.height = 600;
+
+    glfwSetWindowUserPointer(window, &state);
+    glfwSetMouseButtonCallback(window, MouseButtonCallback);
 
     while (!glfwWindowShouldClose(window))
     {
