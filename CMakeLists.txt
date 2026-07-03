@@ -28,3 +28,6 @@ target_link_libraries(PhysicsEngine
     OpenGL::GL
     glfw
 )
+
+file(COPY ${CMAKE_SOURCE_DIR}/shaders
+     DESTINATION ${CMAKE_BINARY_DIR})

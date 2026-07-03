@@ -7,6 +7,7 @@
 #include <iostream>
 #include <random>
 
+
 #include "Renderer.hpp"
 #include "Body.hpp"
 #include "Shader.hpp"
@@ -81,10 +82,10 @@ int main()
         std::cout << "Failed to initialize GLAD\n";
         return -1;
     }
-
-    std::string vertexSrc = LoadFile("../shaders/circle.vert");
-    std::string fragmentSrc = LoadFile("../shaders/circle.frag");
-
+    
+    std::string vertexSrc = LoadFile("shaders/circle.vert");
+    std::string fragmentSrc = LoadFile("shaders/circle.frag");
+    
     Shader shader(vertexSrc, fragmentSrc);
     Renderer renderer;
     renderer.Init(&shader);
@@ -126,12 +127,20 @@ int main()
     glfwSetWindowUserPointer(window, &state);
     glfwSetMouseButtonCallback(window, MouseButtonCallback);
 
+    float lastTime = glfwGetTime();
+    
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
-        physicsWorld.Update(0.016f);
+        float currentTime = glfwGetTime();
+        float dt = currentTime - lastTime;
+        lastTime = currentTime;
+
+        dt = std::min(dt, 0.033f);
+
+        physicsWorld.Update(dt);
 
         for (Body* b : physicsWorld.bodies)
         {
