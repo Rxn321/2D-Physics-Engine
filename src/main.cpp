@@ -92,9 +92,28 @@ int main()
 
     PhysicsWorld physicsWorld;
 
+    
+    Body* sun = new Body();
+
+    sun->position = Vec2(0,0);
+    sun->mass = 1000;
+    sun->radius = 2;
+
+
+    Body* planet = new Body();
+
+    planet->position = Vec2(10,0);
+    planet->mass = 10;
+    planet->velocity = Vec2(0,50);
+    planet->radius = 0.5; 
+
+    physicsWorld.AddBody(sun);
+    physicsWorld.AddBody(planet);
+
 
     std::random_device rd;
     std::mt19937 gen(rd());
+/*
     std::uniform_real_distribution<float> posX(-8.0f, 8.0f);   // spawn x range
     std::uniform_real_distribution<float> posY(3.0f, 6.0f);    // spawn y range (near top)
     std::uniform_real_distribution<float> radiusDist(0.5f, 1.5f); // vary size
@@ -102,13 +121,6 @@ int main()
     std::vector<Body> bodyList;
     bodyList.reserve(67);
 
-    Body* sun = new Body();
-
-    sun->position = Vec2(0,0);
-    sun->mass = 1000;
-    sun->radius = 40;
-
-/*  
     for (int i = 0; i < 5; i++)
     {
         Body b;
@@ -117,19 +129,18 @@ int main()
         b.mass = b.radius * 10.0f;
         bodyList.push_back(b);
     }
-*/
-
 
     for (Body& b : bodyList)
     {
         physicsWorld.AddBody(&b); // pointers
     }
-    
+*/
+
     AppState state;
-    state.bodyList = &bodyList;
+//    state.bodyList = &bodyList;
     state.world = &physicsWorld;
-    state.width = 800;
-    state.height = 600;
+    state.width = 1600;
+    state.height = 1200;
 
     glfwSetWindowUserPointer(window, &state);
     glfwSetMouseButtonCallback(window, MouseButtonCallback);
@@ -151,6 +162,7 @@ int main()
 
         for (Body* b : physicsWorld.bodies)
         {
+            renderer.DrawTrail(*b);
             renderer.DrawBody(*b);
         }
 

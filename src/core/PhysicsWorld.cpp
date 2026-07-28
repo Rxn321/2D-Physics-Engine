@@ -21,11 +21,9 @@ void PhysicsWorld::Update(float dt)
             Body* a = bodies[i];
             Body* b = bodies[j];
 
-
             Vec2 direction = b->position - a->position;
 
             float distance = direction.Length();
-
 
             if (distance > 0.01f)
             {
@@ -36,9 +34,7 @@ void PhysicsWorld::Update(float dt)
                     G * a->mass * b->mass /
                     (distance * distance);
 
-
                 Vec2 force = normal * forceMagnitude;
-
 
                 a->ApplyForce(force);
                 b->ApplyForce(force * -1.0f);
@@ -47,7 +43,21 @@ void PhysicsWorld::Update(float dt)
     }
     for (Body* body : bodies)
     {
-        body->Update(dt);}
+        body->Update(dt);
+
+
+        //trail position
+        body->trail.push_back(body->position);
+
+        //trail length
+        if (body->trail.size() > 200)
+        {
+            body->trail.erase(body->trail.begin());
+        }
+    }
+        ResolveCollisions();
+}
+
 /*        
         body->ApplyForce(gravity * body->mass);
         // floor collision
@@ -75,8 +85,7 @@ void PhysicsWorld::Update(float dt)
         }
     }
 */
-    ResolveCollisions();
-}
+
 
 void PhysicsWorld::ResolveCollisions()
 {

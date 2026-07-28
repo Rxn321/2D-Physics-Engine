@@ -3,6 +3,7 @@
 #include "Renderer.hpp"
 #include "Shader.hpp"
 #include <cmath>
+#include <vector>
 
 
 static const int SEGMENTS = 32;
@@ -51,7 +52,7 @@ static void GenerateCircle()
 void Renderer::Init(Shader* s)
 {
     shader = s;
-    MakeOrtho(projection, -10.0f, 10.0f, -7.5f, 7.5f);
+    MakeOrtho(projection, -50.0f, 50.0f, -35.0f, 35.0f);
 
     GenerateCircle();
 
@@ -72,6 +73,35 @@ void Renderer::Init(Shader* s)
     glEnableVertexAttribArray(0);
 
     glBindVertexArray(0);
+
+    // Trail VAO and VBO
+    glGenVertexArrays(1, &trailVAO);
+    glGenBuffers(1, &trailVBO);
+
+    glBindVertexArray(trailVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, trailVBO);
+
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        200 * 2 * sizeof(float),
+        nullptr,
+        GL_DYNAMIC_DRAW
+    );
+
+
+    glVertexAttribPointer(
+        0,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        2 * sizeof(float),
+        (void*)0
+    );
+
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
 }
 
 
@@ -84,4 +114,47 @@ void Renderer::DrawBody(const Body& body)
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, SEGMENTS * 3, GL_UNSIGNED_INT, 0);
+}
+
+void Renderer::DrawTrail(const Body& body)
+{
+    if(body.trail.size() < 2)
+        return;
+
+
+    std::vector<float> points;
+
+
+    for(const Vec2& p : body.trail)
+    {
+        points.push_back(p.x);
+        points.push_back(p.y);
+    }
+
+
+    shader->Use();
+
+    shader->SetMat4("uProjection", projection);
+
+    shader->SetVec2("uPos", 0, 0);
+    shader->SetFloat("uScale", 1.0f);
+
+
+    glBindBuffer(GL_ARRAY_BUFFER, trailVBO);
+
+    glBufferSubData(
+        GL_ARRAY_BUFFER,
+        0,
+        points.size() * sizeof(float),
+        points.data()
+    );
+
+
+    glBindVertexArray(trailVAO);
+
+    glDrawArrays(
+        GL_LINE_STRIP,
+        0,
+        body.trail.size()
+    );
 }
