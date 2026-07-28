@@ -11,5 +11,5 @@ git clone --recurse-submodules https://github.com/Rxn321/2D-Physics-Engine.git
 cd 2D-Physics-Engine  
 mkdir build && cd build  
 cmake ..  
-cmake --build .  
-./build/Debug/PhysicsEngine.exe
+cmake --build .
+./Debug/PhysicsEngine.exe

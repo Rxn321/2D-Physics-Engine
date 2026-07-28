@@ -102,6 +102,13 @@ int main()
     std::vector<Body> bodyList;
     bodyList.reserve(67);
 
+    Body* sun = new Body();
+
+    sun->position = Vec2(0,0);
+    sun->mass = 1000;
+    sun->radius = 40;
+
+/*  
     for (int i = 0; i < 5; i++)
     {
         Body b;
@@ -110,7 +117,7 @@ int main()
         b.mass = b.radius * 10.0f;
         bodyList.push_back(b);
     }
-
+*/
 
 
     for (Body& b : bodyList)

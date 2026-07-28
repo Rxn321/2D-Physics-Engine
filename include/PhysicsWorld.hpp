@@ -7,6 +7,7 @@
 struct PhysicsWorld
 {
     Vec2 gravity;
+    float G;
 
     std::vector<Body*> bodies;
 

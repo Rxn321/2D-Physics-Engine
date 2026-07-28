@@ -2,7 +2,8 @@
 
 PhysicsWorld::PhysicsWorld()
 {
-    gravity = Vec2(0.0f, -9.81f);
+    gravity = Vec2(0.0f, 0.0f);
+    G = 50.0f; // gravitational constant
 }
 
 void PhysicsWorld::AddBody(Body* body)
@@ -12,11 +13,43 @@ void PhysicsWorld::AddBody(Body* body)
 
 void PhysicsWorld::Update(float dt)
 {
+    // Apply gravity between all bodies
+    for (size_t i = 0; i < bodies.size(); i++)
+    {
+        for (size_t j = i + 1; j < bodies.size(); j++)
+        {
+            Body* a = bodies[i];
+            Body* b = bodies[j];
+
+
+            Vec2 direction = b->position - a->position;
+
+            float distance = direction.Length();
+
+
+            if (distance > 0.01f)
+            {
+                Vec2 normal = direction * (1.0f / distance);
+
+
+                float forceMagnitude =
+                    G * a->mass * b->mass /
+                    (distance * distance);
+
+
+                Vec2 force = normal * forceMagnitude;
+
+
+                a->ApplyForce(force);
+                b->ApplyForce(force * -1.0f);
+            }
+        }
+    }
     for (Body* body : bodies)
     {
+        body->Update(dt);}
+/*        
         body->ApplyForce(gravity * body->mass);
-        body->Update(dt);
-
         // floor collision
         float floorY = -7.5f + body->radius;
         float leftX = -10.0f + body->radius;
@@ -41,7 +74,7 @@ void PhysicsWorld::Update(float dt)
             body->velocity.x *= -0.6f;
         }
     }
-
+*/
     ResolveCollisions();
 }
 
