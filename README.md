@@ -13,4 +13,4 @@ mkdir build && cd build
 cmake ..  
 cmake --build .  
 cd Debug  
-./PhysicsEngine.exe  
+./build/Debug/PhysicsEngine.exe
