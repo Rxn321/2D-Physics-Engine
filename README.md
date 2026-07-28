@@ -12,5 +12,4 @@ cd 2D-Physics-Engine
 mkdir build && cd build  
 cmake ..  
 cmake --build .  
-cd Debug  
 ./build/Debug/PhysicsEngine.exe
