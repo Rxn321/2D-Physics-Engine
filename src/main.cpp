@@ -13,6 +13,9 @@
 #include "Shader.hpp"
 #include "PhysicsWorld.hpp"
 
+constexpr float WORLD_WIDTH  = 100.0f;
+constexpr float WORLD_HEIGHT = 75.0f;
+
 std::string LoadFile(const std::string& path)
 {
     std::ifstream file(path);
@@ -27,8 +30,8 @@ Vec2 ScreenToWorld(double mouseX, double mouseY, int windowWidth, int windowHeig
     float ny = (float)(mouseY / windowHeight);
 
     // convert to world
-    float worldX = (nx * 2.0f - 1.0f) * 10.0f;
-    float worldY = (1.0f - ny * 2.0f) * 7.5f;
+    float worldX = (nx * 2.0f - 1.0f) * WORLD_WIDTH;
+    float worldY = (1.0f - ny * 2.0f) * WORLD_HEIGHT;
 
     return Vec2(worldX, worldY);
 }
@@ -55,6 +58,7 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
         b.position = worldPos;
         b.radius = 1.0f;
         b.mass = b.radius * 10.0f;
+        b.velocity = Vec2(10.0f, 0.0f);
 
         state->bodyList->push_back(b);
         state->world->AddBody(&state->bodyList->back());
@@ -105,20 +109,10 @@ int main()
     Body* sun = new Body();
 
     sun->position = Vec2(0,0);
-    sun->mass = 1000;
-    sun->radius = 40;
+    sun->mass = 100;
+    sun->radius = 10;
 
-/*  
-    for (int i = 0; i < 5; i++)
-    {
-        Body b;
-        b.position = Vec2(posX(gen), posY(gen));
-        b.radius = radiusDist(gen);
-        b.mass = b.radius * 10.0f;
-        bodyList.push_back(b);
-    }
-*/
-
+    physicsWorld.AddBody(sun);
 
     for (Body& b : bodyList)
     {

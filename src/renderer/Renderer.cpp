@@ -51,7 +51,7 @@ static void GenerateCircle()
 void Renderer::Init(Shader* s)
 {
     shader = s;
-    MakeOrtho(projection, -10.0f, 10.0f, -7.5f, 7.5f);
+    MakeOrtho(projection, -100.0f, 100.0f, -75.0f, 75.0f);
 
     GenerateCircle();
 
