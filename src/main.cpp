@@ -7,11 +7,11 @@
 #include <iostream>
 #include <random>
 
-
 #include "Renderer.hpp"
 #include "Body.hpp"
 #include "Shader.hpp"
 #include "PhysicsWorld.hpp"
+#include "SolarSystem.hpp"
 
 constexpr float WORLD_WIDTH  = 100.0f;
 constexpr float WORLD_HEIGHT = 75.0f;
@@ -94,29 +94,21 @@ int main()
     Renderer renderer;
     renderer.Init(&shader);
 
-    PhysicsWorld physicsWorld;
-
-
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> posX(-8.0f, 8.0f);   // spawn x range
     std::uniform_real_distribution<float> posY(3.0f, 6.0f);    // spawn y range (near top)
     std::uniform_real_distribution<float> radiusDist(0.5f, 1.5f); // vary size
 
+    PhysicsWorld physicsWorld;
+    SolarSystem::Create(physicsWorld);
+
     std::vector<Body> bodyList;
+
     bodyList.reserve(67);
-
-    Body* sun = new Body();
-
-    sun->position = Vec2(0,0);
-    sun->mass = 100;
-    sun->radius = 10;
-
-    physicsWorld.AddBody(sun);
-
     for (Body& b : bodyList)
     {
-        physicsWorld.AddBody(&b); // pointers
+        physicsWorld.AddBody(&b);
     }
     
     AppState state;
