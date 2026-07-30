@@ -87,12 +87,23 @@ int main()
         return -1;
     }
     
-    std::string vertexSrc = LoadFile("shaders/circle.vert");
-    std::string fragmentSrc = LoadFile("shaders/circle.frag");
-    
-    Shader shader(vertexSrc, fragmentSrc);
+    std::string circleVert = LoadFile("shaders/circle.vert");
+    std::string circleFrag = LoadFile("shaders/circle.frag");
+    std::string trailVert = LoadFile("shaders/trail.vert");
+    std::string trailFrag = LoadFile("shaders/trail.frag");
+
+    Shader circleShader(
+        circleVert,
+        circleFrag
+    );
+
+    Shader trailShader(
+        trailVert,
+        trailFrag
+    );
+
     Renderer renderer;
-    renderer.Init(&shader);
+    renderer.Init(&circleShader, &trailShader);
 
     std::random_device rd;
     std::mt19937 gen(rd());

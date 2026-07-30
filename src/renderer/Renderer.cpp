@@ -49,9 +49,10 @@ static void GenerateCircle()
 }
 
 
-void Renderer::Init(Shader* s)
+void Renderer::Init(Shader* s, Shader* trailS)
 {
     shader = s;
+    trailShader = trailS;
     MakeOrtho(projection, -100.0f, 100.0f, -75.0f, 75.0f);
 
     GenerateCircle();
@@ -118,15 +119,6 @@ void Renderer::DrawBody(const Body& body)
 
 void Renderer::DrawTrail(const Body& body)
 {   
-    std::cout 
-    << "first: "
-    << body.trail[0].x << ", "
-    << body.trail[0].y
-    << " last: "
-    << body.trail.back().x << ", "
-    << body.trail.back().y
-    << "\n";
-    
     if (body.trail.size() < 2)
         return;
 
@@ -147,11 +139,12 @@ void Renderer::DrawTrail(const Body& body)
         points.data()
     );
 
-    shader->Use();
-    shader->SetMat4("uProjection", projection);
+    trailShader->Use();
 
-    shader->SetVec2("uPos", 0.0f, 0.0f);
-    shader->SetFloat("uScale", 1.0f);
+    trailShader->SetMat4(
+        "uProjection",
+        projection
+    );
 
     glBindVertexArray(trailVAO);
 
