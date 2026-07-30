@@ -3,7 +3,7 @@
 PhysicsWorld::PhysicsWorld()
 {
     gravity = Vec2(0.0f, 0.0f);
-    G = 50.0f; // gravitational constant
+    G = 10.0f; // gravitational constant
 }
 
 void PhysicsWorld::AddBody(Body* body)
