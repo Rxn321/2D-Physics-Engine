@@ -10,9 +10,11 @@ class Renderer
 public:
     void Init(Shader* shader);
     void DrawBody(const Body& body);
+    void DrawTrail(const Body& body);
 
 private:
     unsigned int VAO, VBO, EBO;
+    unsigned int trailVAO,  trailVBO;
     Shader* shader;
     float projection[16];
 };

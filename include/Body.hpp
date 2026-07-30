@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vec2.hpp"
+#include <vector>
 
 struct Body
 {
@@ -9,7 +10,9 @@ struct Body
     Vec2 acceleration;
 
     float mass;
-    float radius; // useful for circle collisions later
+    float radius;
+
+    std::vector<Vec2> trail; 
 
     Body();
     void Update(float dt);

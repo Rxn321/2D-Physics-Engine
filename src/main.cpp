@@ -137,6 +137,7 @@ int main()
 
         for (Body* b : physicsWorld.bodies)
         {
+            renderer.DrawTrail(*b);
             renderer.DrawBody(*b);
         }
 

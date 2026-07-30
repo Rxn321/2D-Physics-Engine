@@ -47,8 +47,14 @@ void PhysicsWorld::Update(float dt)
     }
     for (Body* body : bodies)
     {
-        body->Update(dt);}
+        body->Update(dt);
+        body->trail.push_back(body->position);
 
+        if (body->trail.size() > 300)
+        {
+            body->trail.erase(body->trail.begin());
+        }
+    }
     ResolveCollisions();
 }
 
