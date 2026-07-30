@@ -85,7 +85,7 @@ void Renderer::Init(Shader* s, Shader* trailS)
 
     glBufferData(
         GL_ARRAY_BUFFER,
-        300 * 2 * sizeof(float),
+        2000 * 2 * sizeof(float),
         nullptr,
         GL_DYNAMIC_DRAW
     );
