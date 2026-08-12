@@ -38,7 +38,6 @@ Vec2 ScreenToWorld(double mouseX, double mouseY, int windowWidth, int windowHeig
 
 struct AppState
 {
-    std::vector<Body>* bodyList;
     PhysicsWorld* world;
     int width, height;
 };
@@ -54,14 +53,14 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 
         Vec2 worldPos = ScreenToWorld(mouseX, mouseY, state->width, state->height);
 
-        Body b;
-        b.position = worldPos;
-        b.radius = 1.0f;
-        b.mass = b.radius * 10.0f;
-        b.velocity = Vec2(10.0f, 0.0f);
+        Body* b = new Body();
 
-        state->bodyList->push_back(b);
-        state->world->AddBody(&state->bodyList->back());
+        b->position = worldPos;
+        b->radius = 1.0f;
+        b->mass = b->radius * 10.0f;
+        b->velocity = Vec2(10.0f, 0.0f);
+
+        state->world->AddBody(b);
     }
 }
 
@@ -113,17 +112,8 @@ int main()
 
     PhysicsWorld physicsWorld;
     SolarSystem::Create(physicsWorld);
-
-    std::vector<Body> bodyList;
-
-    bodyList.reserve(67);
-    for (Body& b : bodyList)
-    {
-        physicsWorld.AddBody(&b);
-    }
     
     AppState state;
-    state.bodyList = &bodyList;
     state.world = &physicsWorld;
     state.width = 800;
     state.height = 600;
