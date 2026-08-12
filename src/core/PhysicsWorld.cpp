@@ -13,7 +13,6 @@ void PhysicsWorld::AddBody(Body* body)
 
 void PhysicsWorld::Update(float dt)
 {
-    // Apply gravity between all bodies
     for (size_t i = 0; i < bodies.size(); i++)
     {
         for (size_t j = i + 1; j < bodies.size(); j++)
