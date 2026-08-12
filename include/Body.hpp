@@ -12,6 +12,8 @@ struct Body
     float mass;
     float radius;
 
+    bool alive = true;
+
     std::vector<Vec2> trail; 
 
     Body();

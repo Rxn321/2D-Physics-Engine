@@ -56,6 +56,7 @@ void PhysicsWorld::Update(float dt)
         }
     }
     ResolveCollisions();
+
 }
 
 void PhysicsWorld::ResolveCollisions()
@@ -67,31 +68,59 @@ void PhysicsWorld::ResolveCollisions()
             Body* a = bodies[i];
             Body* b = bodies[j];
 
+            if (!a->alive || !b->alive)
+                continue;
+
             Vec2 delta = a->position - b->position;
-            float dist = delta.Length();
+            float distSquared = delta.x * delta.x + delta.y * delta.y;
             float minDist = a->radius + b->radius;
 
-            if (dist < minDist && dist > 0.0f)
+            if (distSquared <= minDist * minDist)
             {
-                Vec2 normal = delta * (1.0f / dist);
-
-                float overlap = minDist - dist;
-                a->position += normal * (overlap * 0.5f);
-                b->position -= normal * (overlap * 0.5f);
-
-                Vec2 relativeVel = a->velocity - b->velocity;
-                float velAlongNormal = relativeVel.x * normal.x + relativeVel.y * normal.y;
-
-                if (velAlongNormal < 0)
-                {
-                    float restitution = 0.8f; // bounce
-                    float impulse = -(1 + restitution) * velAlongNormal / (1/a->mass + 1/b->mass);
-
-                    Vec2 impulseVec = normal * impulse;
-                    a->velocity += impulseVec * (1.0f / a->mass);
-                    b->velocity -= impulseVec * (1.0f / b->mass);
-                }
+                if (a->mass >= b->mass)
+                    MergeBodies(i, j);
+                else
+                    MergeBodies(j, i);
             }
         }
     }
+
+bodies.erase(
+    std::remove_if(bodies.begin(), bodies.end(),
+        [](Body* b)
+        {
+            if (!b->alive)
+            {
+                delete b;
+                return true;
+            }
+            return false;
+        }),
+    bodies.end());
+}
+    
+
+void PhysicsWorld::MergeBodies(int mainIndex, int absorbedIndex)
+{
+    Body* main = bodies[mainIndex];
+    Body* absorbed = bodies[absorbedIndex];
+
+    float totalMass = main->mass + absorbed->mass;
+
+    main->velocity =
+        (main->velocity * main->mass +
+         absorbed->velocity * absorbed->mass) / totalMass;
+
+    main->position =
+        (main->position * main->mass +
+         absorbed->position * absorbed->mass) / totalMass;
+
+    main->mass = totalMass;
+
+    main->radius = std::sqrt(
+        main->radius * main->radius +
+        absorbed->radius * absorbed->radius
+    );
+
+    absorbed->alive = false;
 }

@@ -18,4 +18,7 @@ struct PhysicsWorld
     void Update(float dt);
 
     void ResolveCollisions();
+
+    void MergeBodies(int keep, int remove);
+
 };
