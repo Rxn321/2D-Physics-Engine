@@ -7,11 +7,14 @@
 #include <iostream>
 #include <random>
 
-
 #include "Renderer.hpp"
 #include "Body.hpp"
 #include "Shader.hpp"
 #include "PhysicsWorld.hpp"
+#include "SolarSystem.hpp"
+
+constexpr float WORLD_WIDTH  = 100.0f;
+constexpr float WORLD_HEIGHT = 75.0f;
 
 std::string LoadFile(const std::string& path)
 {
@@ -27,8 +30,8 @@ Vec2 ScreenToWorld(double mouseX, double mouseY, int windowWidth, int windowHeig
     float ny = (float)(mouseY / windowHeight);
 
     // convert to world
-    float worldX = (nx * 2.0f - 1.0f) * 10.0f;
-    float worldY = (1.0f - ny * 2.0f) * 7.5f;
+    float worldX = (nx * 2.0f - 1.0f) * WORLD_WIDTH;
+    float worldY = (1.0f - ny * 2.0f) * WORLD_HEIGHT;
 
     return Vec2(worldX, worldY);
 }
@@ -55,6 +58,7 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
         b.position = worldPos;
         b.radius = 1.0f;
         b.mass = b.radius * 10.0f;
+        b.velocity = Vec2(10.0f, 0.0f);
 
         state->bodyList->push_back(b);
         state->world->AddBody(&state->bodyList->back());
@@ -83,64 +87,46 @@ int main()
         return -1;
     }
     
-    std::string vertexSrc = LoadFile("shaders/circle.vert");
-    std::string fragmentSrc = LoadFile("shaders/circle.frag");
-    
-    Shader shader(vertexSrc, fragmentSrc);
+    std::string circleVert = LoadFile("shaders/circle.vert");
+    std::string circleFrag = LoadFile("shaders/circle.frag");
+    std::string trailVert = LoadFile("shaders/trail.vert");
+    std::string trailFrag = LoadFile("shaders/trail.frag");
+
+    Shader circleShader(
+        circleVert,
+        circleFrag
+    );
+
+    Shader trailShader(
+        trailVert,
+        trailFrag
+    );
+
     Renderer renderer;
-    renderer.Init(&shader);
-
-    PhysicsWorld physicsWorld;
-
-    
-    Body* sun = new Body();
-
-    sun->position = Vec2(0,0);
-    sun->mass = 1000;
-    sun->radius = 2;
-
-
-    Body* planet = new Body();
-
-    planet->position = Vec2(10,0);
-    planet->mass = 10;
-    planet->velocity = Vec2(0,50);
-    planet->radius = 0.5; 
-
-    physicsWorld.AddBody(sun);
-    physicsWorld.AddBody(planet);
-
+    renderer.Init(&circleShader, &trailShader);
 
     std::random_device rd;
     std::mt19937 gen(rd());
-/*
     std::uniform_real_distribution<float> posX(-8.0f, 8.0f);   // spawn x range
     std::uniform_real_distribution<float> posY(3.0f, 6.0f);    // spawn y range (near top)
     std::uniform_real_distribution<float> radiusDist(0.5f, 1.5f); // vary size
 
+    PhysicsWorld physicsWorld;
+    SolarSystem::Create(physicsWorld);
+
     std::vector<Body> bodyList;
+
     bodyList.reserve(67);
-
-    for (int i = 0; i < 5; i++)
-    {
-        Body b;
-        b.position = Vec2(posX(gen), posY(gen));
-        b.radius = radiusDist(gen);
-        b.mass = b.radius * 10.0f;
-        bodyList.push_back(b);
-    }
-
     for (Body& b : bodyList)
     {
-        physicsWorld.AddBody(&b); // pointers
+        physicsWorld.AddBody(&b);
     }
-*/
-
+    
     AppState state;
-//    state.bodyList = &bodyList;
+    state.bodyList = &bodyList;
     state.world = &physicsWorld;
-    state.width = 1600;
-    state.height = 1200;
+    state.width = 800;
+    state.height = 600;
 
     glfwSetWindowUserPointer(window, &state);
     glfwSetMouseButtonCallback(window, MouseButtonCallback);

@@ -1,10 +1,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <iostream>
 #include "Renderer.hpp"
 #include "Shader.hpp"
 #include <cmath>
 #include <vector>
-
 
 static const int SEGMENTS = 32;
 
@@ -49,10 +49,11 @@ static void GenerateCircle()
 }
 
 
-void Renderer::Init(Shader* s)
+void Renderer::Init(Shader* s, Shader* trailS)
 {
     shader = s;
-    MakeOrtho(projection, -50.0f, 50.0f, -35.0f, 35.0f);
+    trailShader = trailS;
+    MakeOrtho(projection, -100.0f, 100.0f, -75.0f, 75.0f);
 
     GenerateCircle();
 
@@ -74,7 +75,7 @@ void Renderer::Init(Shader* s)
 
     glBindVertexArray(0);
 
-    // Trail VAO and VBO
+    // Trail VAO/VBO
     glGenVertexArrays(1, &trailVAO);
     glGenBuffers(1, &trailVBO);
 
@@ -84,11 +85,10 @@ void Renderer::Init(Shader* s)
 
     glBufferData(
         GL_ARRAY_BUFFER,
-        200 * 2 * sizeof(float),
+        2000 * 2 * sizeof(float),
         nullptr,
         GL_DYNAMIC_DRAW
     );
-
 
     glVertexAttribPointer(
         0,
@@ -116,29 +116,19 @@ void Renderer::DrawBody(const Body& body)
     glDrawElements(GL_TRIANGLES, SEGMENTS * 3, GL_UNSIGNED_INT, 0);
 }
 
-void Renderer::DrawTrail(const Body& body)
-{
-    if(body.trail.size() < 2)
-        return;
 
+void Renderer::DrawTrail(const Body& body)
+{   
+    if (body.trail.size() < 2)
+        return;
 
     std::vector<float> points;
 
-
-    for(const Vec2& p : body.trail)
+    for (const Vec2& p : body.trail)
     {
         points.push_back(p.x);
         points.push_back(p.y);
     }
-
-
-    shader->Use();
-
-    shader->SetMat4("uProjection", projection);
-
-    shader->SetVec2("uPos", 0, 0);
-    shader->SetFloat("uScale", 1.0f);
-
 
     glBindBuffer(GL_ARRAY_BUFFER, trailVBO);
 
@@ -149,12 +139,22 @@ void Renderer::DrawTrail(const Body& body)
         points.data()
     );
 
+    trailShader->Use();
+
+    trailShader->SetMat4(
+        "uProjection",
+        projection
+    );
 
     glBindVertexArray(trailVAO);
+
+    glLineWidth(3.0f);
 
     glDrawArrays(
         GL_LINE_STRIP,
         0,
-        body.trail.size()
+        (GLsizei)body.trail.size()
     );
+
+    glBindVertexArray(0);
 }
