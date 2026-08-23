@@ -49,7 +49,7 @@ void Renderer::Init(Shader* s, Shader* trailS)
     shader = s;
     trailShader = trailS;
 
-    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
 
     // Perspective projection
     projection = glm::perspective(
