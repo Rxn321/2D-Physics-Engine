@@ -1,12 +1,15 @@
 #version 330 core
-layout (location = 0) in vec2 aPos;
 
-uniform vec2 uPos;
-uniform float uScale;
+layout (location = 0) in vec3 aPos;
+
+uniform mat4 uModel;
+uniform mat4 uView;
 uniform mat4 uProjection;
 
 void main()
 {
-    vec2 worldPos = aPos * uScale + uPos;
-    gl_Position = uProjection * vec4(worldPos, 0.0, 1.0);
+    gl_Position = uProjection
+                * uView
+                * uModel
+                * vec4(aPos, 1.0);
 }

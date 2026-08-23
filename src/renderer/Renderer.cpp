@@ -6,38 +6,33 @@
 #include <cmath>
 #include <vector>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 static const int SEGMENTS = 32;
 
-static float vertices[(SEGMENTS + 2) * 2];
+static float vertices[(SEGMENTS + 2) * 3];
 static unsigned int indices[SEGMENTS * 3];
 
-
-static void MakeOrtho(float* mat, float left, float right, float bottom, float top)
-{
-    for (int i = 0; i < 16; i++) mat[i] = 0.0f;
-
-    mat[0] = 2.0f / (right - left);
-    mat[5] = 2.0f / (top - bottom);
-    mat[10] = -1.0f;
-    mat[12] = -(right + left) / (right - left);
-    mat[13] = -(top + bottom) / (top - bottom);
-    mat[15] = 1.0f;
-}
 
 static void GenerateCircle()
 {
     float radius = 1.0f;
 
-    // center point
+    // Center point
     vertices[0] = 0.0f;
     vertices[1] = 0.0f;
+    vertices[2] = 0.0f;
 
     for (int i = 0; i <= SEGMENTS; i++)
     {
-        float angle = (float)i / SEGMENTS * 2.0f * 3.1415926f;
+        float angle =
+            (float)i / SEGMENTS *
+            2.0f * 3.1415926f;
 
-        vertices[(i + 1) * 2 + 0] = cosf(angle) * radius;
-        vertices[(i + 1) * 2 + 1] = sinf(angle) * radius;
+        vertices[(i + 1) * 3 + 0] = cosf(angle) * radius;
+        vertices[(i + 1) * 3 + 1] = 0.0f;
+        vertices[(i + 1) * 3 + 2] = sinf(angle) * radius;
     }
 
     for (int i = 0; i < SEGMENTS; i++)
@@ -53,10 +48,27 @@ void Renderer::Init(Shader* s, Shader* trailS)
 {
     shader = s;
     trailShader = trailS;
-    MakeOrtho(projection, -100.0f, 100.0f, -75.0f, 75.0f);
+
+    //glEnable(GL_DEPTH_TEST);
+
+    // Perspective projection
+    projection = glm::perspective(
+        glm::radians(50.0f),
+        1280.0f / 720.0f,
+        0.1f,
+        1000.0f
+    );
+
+    // Temporary fixed camera
+    view = glm::lookAt(
+        glm::vec3(0.0f, 80.0f, 100.0f),
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
 
     GenerateCircle();
 
+    // Circle VAO/VBO/EBO
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -64,16 +76,35 @@ void Renderer::Init(Shader* s, Shader* trailS)
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        sizeof(vertices),
+        vertices,
+        GL_STATIC_DRAW
+    );
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER,
+        sizeof(indices),
+        indices,
+        GL_STATIC_DRAW
+    );
 
-    // position attribute (vec2)
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    // (vec3)
+    glVertexAttribPointer(
+        0,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        3 * sizeof(float),
+        (void*)0
+    );
+
     glEnableVertexAttribArray(0);
 
     glBindVertexArray(0);
+
 
     // Trail VAO/VBO
     glGenVertexArrays(1, &trailVAO);
@@ -85,17 +116,17 @@ void Renderer::Init(Shader* s, Shader* trailS)
 
     glBufferData(
         GL_ARRAY_BUFFER,
-        2000 * 2 * sizeof(float),
+        2000 * 3 * sizeof(float),
         nullptr,
         GL_DYNAMIC_DRAW
     );
 
     glVertexAttribPointer(
         0,
-        2,
+        3,
         GL_FLOAT,
         GL_FALSE,
-        2 * sizeof(float),
+        3 * sizeof(float),
         (void*)0
     );
 
@@ -108,17 +139,43 @@ void Renderer::Init(Shader* s, Shader* trailS)
 void Renderer::DrawBody(const Body& body)
 {
     shader->Use();
-    shader->SetVec2("uPos", body.position.x, body.position.y);
-    shader->SetFloat("uScale", body.radius);
+
+    // identity matrix
+    glm::mat4 model = glm::mat4(1.0f);
+
+    model = glm::translate(
+        model,
+        glm::vec3(
+            body.position.x,
+            0.0f,
+            body.position.y
+        )
+    );
+
+    model = glm::scale(
+        model,
+        glm::vec3(body.radius)
+    );
+
+    shader->SetMat4("uModel", model);
+    shader->SetMat4("uView", view);
     shader->SetMat4("uProjection", projection);
 
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, SEGMENTS * 3, GL_UNSIGNED_INT, 0);
+
+    glDrawElements(
+        GL_TRIANGLES,
+        SEGMENTS * 3,
+        GL_UNSIGNED_INT,
+        0
+    );
+
+    glBindVertexArray(0);
 }
 
 
 void Renderer::DrawTrail(const Body& body)
-{   
+{
     if (body.trail.size() < 2)
         return;
 
@@ -127,6 +184,7 @@ void Renderer::DrawTrail(const Body& body)
     for (const Vec2& p : body.trail)
     {
         points.push_back(p.x);
+        points.push_back(0.0f);
         points.push_back(p.y);
     }
 
@@ -141,10 +199,8 @@ void Renderer::DrawTrail(const Body& body)
 
     trailShader->Use();
 
-    trailShader->SetMat4(
-        "uProjection",
-        projection
-    );
+    trailShader->SetMat4("uView", view);
+    trailShader->SetMat4("uProjection", projection);
 
     glBindVertexArray(trailVAO);
 

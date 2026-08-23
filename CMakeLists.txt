@@ -16,6 +16,7 @@ target_include_directories(PhysicsEngine PRIVATE
     include
     external/glfw/include
     external/glad/include
+    external/glm
 )
 
 

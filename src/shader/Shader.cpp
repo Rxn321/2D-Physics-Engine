@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include "Shader.hpp"
 #include <iostream>
+#include <glm/gtc/type_ptr.hpp>
 
 Shader::Shader(const std::string& vertexSrc, const std::string& fragmentSrc)
 {       
@@ -67,9 +68,15 @@ void Shader::SetFloat(const std::string& name, float value)
         glUniform1f(loc, value);
 }
 
-void Shader::SetMat4(const std::string& name, const float* mat)
+void Shader::SetMat4(const std::string& name, const glm::mat4& mat)
 {
     GLint loc = glGetUniformLocation(ID, name.c_str());
+
     if (loc != -1)
-        glUniformMatrix4fv(loc, 1, GL_FALSE, mat);
+        glUniformMatrix4fv(
+            loc,
+            1,
+            GL_FALSE,
+            glm::value_ptr(mat)
+        );
 }
