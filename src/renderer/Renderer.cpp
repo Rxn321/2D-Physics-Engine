@@ -8,6 +8,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/constants.hpp>
 
 static const int SEGMENTS = 32;
 
@@ -44,17 +45,18 @@ static void GenerateCircle()
 }
 
 
-void Renderer::Init(Shader* s, Shader* trailS)
+void Renderer::Init(Shader* s, Shader* trailS, Shader* sphereS)
 {
     shader = s;
     trailShader = trailS;
+    sphereShader = sphereS;
 
     glEnable(GL_DEPTH_TEST);
 
     // Perspective projection
     projection = glm::perspective(
         glm::radians(50.0f),
-        1280.0f / 720.0f,
+        800.0f / 600.0f,
         0.1f,
         1000.0f
     );
@@ -67,6 +69,7 @@ void Renderer::Init(Shader* s, Shader* trailS)
     );
 
     GenerateCircle();
+    GenerateSphere();
 
     // Circle VAO/VBO/EBO
     glGenVertexArrays(1, &VAO);
@@ -138,9 +141,11 @@ void Renderer::Init(Shader* s, Shader* trailS)
 
 void Renderer::DrawBody(const Body& body)
 {
-    shader->Use();
+    sphereShader->Use();
 
-    // identity matrix
+    // Calculate visual size from mass
+    float visualRadius = std::cbrt(body.mass) * 0.5f;
+
     glm::mat4 model = glm::mat4(1.0f);
 
     model = glm::translate(
@@ -154,25 +159,34 @@ void Renderer::DrawBody(const Body& body)
 
     model = glm::scale(
         model,
-        glm::vec3(body.radius)
+        glm::vec3(visualRadius)
     );
 
-    shader->SetMat4("uModel", model);
-    shader->SetMat4("uView", view);
-    shader->SetMat4("uProjection", projection);
+    sphereShader->SetMat4("model", model);
+    sphereShader->SetMat4("view", view);
+    sphereShader->SetMat4("projection", projection);
 
-    glBindVertexArray(VAO);
+    sphereShader->SetVec3(
+        "objectColor",
+        glm::vec3(1.0f, 1.0f, 1.0f)
+    );
+
+    sphereShader->SetVec3(
+        "lightPos",
+        glm::vec3(0.0f, 80.0f, 100.0f)
+    );
+
+    glBindVertexArray(sphereVAO);
 
     glDrawElements(
         GL_TRIANGLES,
-        SEGMENTS * 3,
+        sphereIndexCount,
         GL_UNSIGNED_INT,
         0
     );
 
     glBindVertexArray(0);
 }
-
 
 void Renderer::DrawTrail(const Body& body)
 {
@@ -213,4 +227,107 @@ void Renderer::DrawTrail(const Body& body)
     );
 
     glBindVertexArray(0);
+}
+
+void Renderer::GenerateSphere()
+{
+    const int STACKS = 16;
+    const int SECTORS = 32;
+
+    std::vector<float> vertices;
+    std::vector<unsigned int> indices;
+
+    for (int i = 0; i <= STACKS; i++)
+    {
+        float phi = glm::pi<float>() * i / STACKS;
+
+        for (int j = 0; j <= SECTORS; j++)
+        {
+            float theta = 2.0f * glm::pi<float>() * j / SECTORS;
+
+            float x = sin(phi) * cos(theta);
+            float y = cos(phi);
+            float z = sin(phi) * sin(theta);
+
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+
+            // Normal
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+        }
+    }
+
+    for (int i = 0; i < STACKS; i++)
+    {
+        for (int j = 0; j < SECTORS; j++)
+        {
+            int current = i * (SECTORS + 1) + j;
+            int next = current + SECTORS + 1;
+
+            indices.push_back(current);
+            indices.push_back(next);
+            indices.push_back(current + 1);
+
+            indices.push_back(current + 1);
+            indices.push_back(next);
+            indices.push_back(next + 1);
+        }
+    }
+
+    sphereIndexCount = indices.size();
+
+    glGenVertexArrays(1, &sphereVAO);
+    glGenBuffers(1, &sphereVBO);
+    glGenBuffers(1, &sphereEBO);
+
+    glBindVertexArray(sphereVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, sphereVBO);
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        vertices.size() * sizeof(float),
+        vertices.data(),
+        GL_STATIC_DRAW
+    );
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereEBO);
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER,
+        indices.size() * sizeof(unsigned int),
+        indices.data(),
+        GL_STATIC_DRAW
+    );
+
+    // Position
+    glVertexAttribPointer(
+        0,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        6 * sizeof(float),
+        (void*)0
+    );
+
+    glEnableVertexAttribArray(0);
+
+    // Normal
+    glVertexAttribPointer(
+        1,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        6 * sizeof(float),
+        (void*)(3 * sizeof(float))
+    );
+
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+    std::cout << "Sphere generated: "
+          << sphereIndexCount
+          << " indices\n";
+    
 }

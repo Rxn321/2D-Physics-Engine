@@ -80,3 +80,11 @@ void Shader::SetMat4(const std::string& name, const glm::mat4& mat)
             glm::value_ptr(mat)
         );
 }
+
+void Shader::SetVec3(const std::string& name, const glm::vec3& value)
+{
+    GLint loc = glGetUniformLocation(ID, name.c_str());
+
+    if (loc != -1)
+        glUniform3fv(loc, 1, glm::value_ptr(value));
+}

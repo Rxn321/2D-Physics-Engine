@@ -49,7 +49,7 @@ void PhysicsWorld::Update(float dt)
         body->Update(dt);
         body->trail.push_back(body->position);
 
-        if (body->trail.size() > 2000)
+        if (body->trail.size() > 1000)
         {
             body->trail.erase(body->trail.begin());
         }
