@@ -70,6 +70,7 @@ void Renderer::Init(Shader* s, Shader* trailS, Shader* sphereS)
 
     GenerateCircle();
     GenerateSphere();
+    GenerateGravityMesh();
 
     // Circle VAO/VBO/EBO
     glGenVertexArrays(1, &VAO);
@@ -186,6 +187,8 @@ void Renderer::DrawBody(const Body& body)
     );
 
     glBindVertexArray(0);
+
+    DrawGravityMesh(body);
 }
 
 void Renderer::DrawTrail(const Body& body)
@@ -330,4 +333,146 @@ void Renderer::GenerateSphere()
           << sphereIndexCount
           << " indices\n";
     
+}
+
+void Renderer::GenerateGravityMesh()
+{
+    const int STACKS = 12;
+    const int SECTORS = 24;
+
+    std::vector<float> vertices;
+    std::vector<unsigned int> indices;
+
+    // Generate vertices
+    for (int i = 0; i <= STACKS; i++)
+    {
+        float phi = glm::pi<float>() * i / STACKS;
+
+        for (int j = 0; j <= SECTORS; j++)
+        {
+            float theta =
+                2.0f * glm::pi<float>() * j / SECTORS;
+
+            float x = sin(phi) * cos(theta);
+            float y = cos(phi);
+            float z = sin(phi) * sin(theta);
+
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+        }
+    }
+
+    // Horizontal lines
+    for (int i = 0; i <= STACKS; i++)
+    {
+        for (int j = 0; j < SECTORS; j++)
+        {
+            int current =
+                i * (SECTORS + 1) + j;
+
+            int next = current + 1;
+
+            indices.push_back(current);
+            indices.push_back(next);
+        }
+    }
+
+    // Vertical lines
+    for (int i = 0; i < STACKS; i++)
+    {
+        for (int j = 0; j <= SECTORS; j++)
+        {
+            int current =
+                i * (SECTORS + 1) + j;
+
+            int next =
+                current + SECTORS + 1;
+
+            indices.push_back(current);
+            indices.push_back(next);
+        }
+    }
+
+    gravityIndexCount = indices.size();
+
+    glGenVertexArrays(1, &gravityVAO);
+    glGenBuffers(1, &gravityVBO);
+    glGenBuffers(1, &gravityEBO);
+
+    glBindVertexArray(gravityVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, gravityVBO);
+
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        vertices.size() * sizeof(float),
+        vertices.data(),
+        GL_STATIC_DRAW
+    );
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gravityEBO);
+
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER,
+        indices.size() * sizeof(unsigned int),
+        indices.data(),
+        GL_STATIC_DRAW
+    );
+
+    glVertexAttribPointer(
+        0,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        3 * sizeof(float),
+        (void*)0
+    );
+
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
+}
+
+void Renderer::DrawGravityMesh(const Body& body)
+{
+    float gravityRadius = 10.0f;
+
+    glm::mat4 model = glm::mat4(1.0f);
+
+    model = glm::translate(
+        model,
+        glm::vec3(
+            body.position.x,
+            0.0f,
+            body.position.y
+        )
+    );
+
+    model = glm::scale(
+        model,
+        glm::vec3(gravityRadius)
+    );
+
+    sphereShader->Use();
+
+    sphereShader->SetMat4("model", model);
+    sphereShader->SetMat4("view", view);
+    sphereShader->SetMat4("projection", projection);
+
+    sphereShader->SetVec3(
+        "objectColor",
+        glm::vec3(0.2f, 0.6f, 1.0f)
+    );
+
+    glBindVertexArray(gravityVAO);
+
+    glDrawElements(
+        GL_LINES,
+        gravityIndexCount,
+        GL_UNSIGNED_INT,
+        0
+    );
+
+    glBindVertexArray(0);
 }
