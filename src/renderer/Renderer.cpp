@@ -3,6 +3,7 @@
 #include <iostream>
 #include "Renderer.hpp"
 #include "Shader.hpp"
+#include "PhysicsWorld.hpp"
 #include <cmath>
 #include <vector>
 
@@ -71,7 +72,7 @@ void Renderer::Init(Shader* s, Shader* trailS, Shader* sphereS)
     GenerateCircle();
     GenerateSphere();
     GenerateGravityMesh();
-    DrawGravityMesh();
+    
 
     // Circle VAO/VBO/EBO
     glGenVertexArrays(1, &VAO);
@@ -337,23 +338,23 @@ void Renderer::GenerateSphere()
 void Renderer::GenerateGravityMesh()
 {
     const int GRID_SIZE = 50;
-    const float WORLD_SIZE = 100.0f;
 
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
 
-    float spacing = WORLD_SIZE / (GRID_SIZE - 1);
+    float spacingX = WORLD_WIDTH / (GRID_SIZE - 1);
+    float spacingZ = WORLD_HEIGHT / (GRID_SIZE - 1);
 
-    // Vertices
+    // Generate vertices
     for (int z = 0; z < GRID_SIZE; z++)
     {
         for (int x = 0; x < GRID_SIZE; x++)
         {
             float worldX =
-                -WORLD_SIZE / 2.0f + x * spacing;
+                -WORLD_WIDTH / 2.0f + x * spacingX;
 
             float worldZ =
-                -WORLD_SIZE / 2.0f + z * spacing;
+                -WORLD_HEIGHT / 2.0f + z * spacingZ;
 
             // Start completely flat
             vertices.push_back(worldX);
@@ -362,28 +363,33 @@ void Renderer::GenerateGravityMesh()
         }
     }
 
-    // Two triangles per grid square
-    for (int z = 0; z < GRID_SIZE - 1; z++)
+    // Horizontal lines
+    for (int z = 0; z < GRID_SIZE; z++)
     {
         for (int x = 0; x < GRID_SIZE - 1; x++)
         {
-            int current =
+            unsigned int current =
                 z * GRID_SIZE + x;
 
-            int next =
-                current + GRID_SIZE;
-
             indices.push_back(current);
-            indices.push_back(next);
             indices.push_back(current + 1);
-
-            indices.push_back(current + 1);
-            indices.push_back(next);
-            indices.push_back(next + 1);
         }
     }
 
-    gravityIndexCount = indices.size();
+    // Vertical lines
+    for (int z = 0; z < GRID_SIZE - 1; z++)
+    {
+        for (int x = 0; x < GRID_SIZE; x++)
+        {
+            unsigned int current =
+                z * GRID_SIZE + x;
+
+            indices.push_back(current);
+            indices.push_back(current + GRID_SIZE);
+        }
+    }
+
+    gravityIndexCount = static_cast<unsigned int>(indices.size());
 
     glGenVertexArrays(1, &gravityVAO);
     glGenBuffers(1, &gravityVBO);
@@ -421,6 +427,10 @@ void Renderer::GenerateGravityMesh()
     glEnableVertexAttribArray(0);
 
     glBindVertexArray(0);
+
+    std::cout << "Gravity indices: "
+          << gravityIndexCount
+          << std::endl;
 }
 
 void Renderer::DrawGravityMesh()
@@ -435,7 +445,7 @@ void Renderer::DrawGravityMesh()
 
     sphereShader->SetVec3(
         "objectColor",
-        glm::vec3(0.3f, 0.3f, 0.3f)
+        glm::vec3(1.0f, 1.0f, 1.0f)
     );
 
     sphereShader->SetVec3(
@@ -448,7 +458,7 @@ void Renderer::DrawGravityMesh()
     glDisable(GL_CULL_FACE);
 
     glDrawElements(
-        GL_TRIANGLES,
+        GL_LINES,
         gravityIndexCount,
         GL_UNSIGNED_INT,
         0

@@ -3,7 +3,6 @@
 #include <vector>
 #include "Body.hpp"
 
-
 constexpr float WORLD_WIDTH = 200.0f;
 constexpr float WORLD_HEIGHT = 200.0f;
 

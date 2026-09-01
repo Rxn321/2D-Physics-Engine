@@ -13,8 +13,7 @@
 #include "PhysicsWorld.hpp"
 #include "SolarSystem.hpp"
 
-constexpr float WORLD_WIDTH  = 100.0f;
-constexpr float WORLD_HEIGHT = 75.0f;
+const int GRID_SIZE = 50;
 
 std::string LoadFile(const std::string& path)
 {
@@ -153,11 +152,14 @@ int main()
 
         physicsWorld.Update(dt);
 
+
         for (Body* b : physicsWorld.bodies)
         {
-            renderer.DrawTrail(*b);
-            renderer.DrawBody(*b);
+            
             renderer.DrawGravityMesh();
+            renderer.DrawBody(*b);
+            renderer.DrawTrail(*b);
+            
         }
 
         glfwSwapBuffers(window);
