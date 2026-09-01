@@ -4,6 +4,9 @@
 #include "Body.hpp"
 
 
+constexpr float WORLD_WIDTH = 200.0f;
+constexpr float WORLD_HEIGHT = 200.0f;
+
 struct PhysicsWorld
 {
     Vec2 gravity;
@@ -20,5 +23,4 @@ struct PhysicsWorld
     void ResolveCollisions();
 
     void MergeBodies(int keep, int remove);
-
 };

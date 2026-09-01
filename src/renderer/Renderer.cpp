@@ -71,6 +71,7 @@ void Renderer::Init(Shader* s, Shader* trailS, Shader* sphereS)
     GenerateCircle();
     GenerateSphere();
     GenerateGravityMesh();
+    DrawGravityMesh();
 
     // Circle VAO/VBO/EBO
     glGenVertexArrays(1, &VAO);
@@ -187,8 +188,6 @@ void Renderer::DrawBody(const Body& body)
     );
 
     glBindVertexArray(0);
-
-    DrawGravityMesh(body);
 }
 
 void Renderer::DrawTrail(const Body& body)
@@ -337,60 +336,50 @@ void Renderer::GenerateSphere()
 
 void Renderer::GenerateGravityMesh()
 {
-    const int STACKS = 12;
-    const int SECTORS = 24;
+    const int GRID_SIZE = 50;
+    const float WORLD_SIZE = 100.0f;
 
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
 
-    // Generate vertices
-    for (int i = 0; i <= STACKS; i++)
+    float spacing = WORLD_SIZE / (GRID_SIZE - 1);
+
+    // Vertices
+    for (int z = 0; z < GRID_SIZE; z++)
     {
-        float phi = glm::pi<float>() * i / STACKS;
-
-        for (int j = 0; j <= SECTORS; j++)
+        for (int x = 0; x < GRID_SIZE; x++)
         {
-            float theta =
-                2.0f * glm::pi<float>() * j / SECTORS;
+            float worldX =
+                -WORLD_SIZE / 2.0f + x * spacing;
 
-            float x = sin(phi) * cos(theta);
-            float y = cos(phi);
-            float z = sin(phi) * sin(theta);
+            float worldZ =
+                -WORLD_SIZE / 2.0f + z * spacing;
 
-            vertices.push_back(x);
-            vertices.push_back(y);
-            vertices.push_back(z);
+            // Start completely flat
+            vertices.push_back(worldX);
+            vertices.push_back(0.0f);
+            vertices.push_back(worldZ);
         }
     }
 
-    // Horizontal lines
-    for (int i = 0; i <= STACKS; i++)
+    // Two triangles per grid square
+    for (int z = 0; z < GRID_SIZE - 1; z++)
     {
-        for (int j = 0; j < SECTORS; j++)
+        for (int x = 0; x < GRID_SIZE - 1; x++)
         {
             int current =
-                i * (SECTORS + 1) + j;
-
-            int next = current + 1;
-
-            indices.push_back(current);
-            indices.push_back(next);
-        }
-    }
-
-    // Vertical lines
-    for (int i = 0; i < STACKS; i++)
-    {
-        for (int j = 0; j <= SECTORS; j++)
-        {
-            int current =
-                i * (SECTORS + 1) + j;
+                z * GRID_SIZE + x;
 
             int next =
-                current + SECTORS + 1;
+                current + GRID_SIZE;
 
             indices.push_back(current);
             indices.push_back(next);
+            indices.push_back(current + 1);
+
+            indices.push_back(current + 1);
+            indices.push_back(next);
+            indices.push_back(next + 1);
         }
     }
 
@@ -408,7 +397,7 @@ void Renderer::GenerateGravityMesh()
         GL_ARRAY_BUFFER,
         vertices.size() * sizeof(float),
         vertices.data(),
-        GL_STATIC_DRAW
+        GL_DYNAMIC_DRAW
     );
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gravityEBO);
@@ -434,25 +423,9 @@ void Renderer::GenerateGravityMesh()
     glBindVertexArray(0);
 }
 
-void Renderer::DrawGravityMesh(const Body& body)
+void Renderer::DrawGravityMesh()
 {
-    float gravityRadius = 10.0f;
-
     glm::mat4 model = glm::mat4(1.0f);
-
-    model = glm::translate(
-        model,
-        glm::vec3(
-            body.position.x,
-            0.0f,
-            body.position.y
-        )
-    );
-
-    model = glm::scale(
-        model,
-        glm::vec3(gravityRadius)
-    );
 
     sphereShader->Use();
 
@@ -462,13 +435,20 @@ void Renderer::DrawGravityMesh(const Body& body)
 
     sphereShader->SetVec3(
         "objectColor",
-        glm::vec3(0.2f, 0.6f, 1.0f)
+        glm::vec3(0.3f, 0.3f, 0.3f)
+    );
+
+    sphereShader->SetVec3(
+        "lightPos",
+        glm::vec3(0.0f, 80.0f, 100.0f)
     );
 
     glBindVertexArray(gravityVAO);
 
+    glDisable(GL_CULL_FACE);
+
     glDrawElements(
-        GL_LINES,
+        GL_TRIANGLES,
         gravityIndexCount,
         GL_UNSIGNED_INT,
         0

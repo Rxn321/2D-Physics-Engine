@@ -4,6 +4,7 @@
 #include "Shader.hpp"
 
 #include <glm/glm.hpp>
+#include <vector>
 
 class Renderer
 {
@@ -12,9 +13,12 @@ public:
 
     void DrawBody(const Body& body);
     void DrawTrail(const Body& body);
+
     void GenerateSphere();
+
     void GenerateGravityMesh();
-    void DrawGravityMesh(const Body& body);
+    void UpdateGravityMesh(const std::vector<Body*>& bodies);
+    void DrawGravityMesh();
 
 private:
     unsigned int VAO, VBO, EBO;
@@ -23,7 +27,10 @@ private:
     unsigned int sphereVAO, sphereVBO, sphereEBO;
     unsigned int sphereIndexCount;
 
-    unsigned int gravityVAO, gravityVBO, gravityEBO;
+    // The main char of proj
+    unsigned int gravityVAO;
+    unsigned int gravityVBO;
+    unsigned int gravityEBO;
     unsigned int gravityIndexCount;
 
     Shader* shader;

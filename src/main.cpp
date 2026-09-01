@@ -157,6 +157,7 @@ int main()
         {
             renderer.DrawTrail(*b);
             renderer.DrawBody(*b);
+            renderer.DrawGravityMesh();
         }
 
         glfwSwapBuffers(window);
