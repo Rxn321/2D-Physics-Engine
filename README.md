@@ -10,14 +10,14 @@ cmake --build .
 ./Debug/PhysicsEngine.exe  
 
 ## Features
- 2D Newtonian gravity
- Multiple-body gravitational interactions
- Collision detection
- Body merging / accretion
- OpenGL rendering
- Gravity-well mesh
- Click-to-spawn bodies
- Fix click-to-spawn world coordinates with the new camera
+ 2D Newtonian gravity  
+ Multiple-body gravitational interactions  
+ Collision detection  
+ Body merging / accretion  
+ OpenGL rendering  
+ Gravity-well mesh  
+ Click-to-spawn bodies  
+ Fix click-to-spawn world coordinates with the new camera  
 
 ## Future Stuff  
  Interactive Camera  
