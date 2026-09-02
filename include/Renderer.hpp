@@ -15,10 +15,13 @@ public:
     void DrawTrail(const Body& body);
 
     void GenerateSphere();
-
     void GenerateGravityMesh();
-    void UpdateGravityMesh(const std::vector<Body*>& bodies);
     void DrawGravityMesh();
+    
+    void UpdateGravityMesh(
+        const std::vector<Body*>& bodies,
+        float gravitationalConstant
+    );
 
 private:
     unsigned int VAO, VBO, EBO;

@@ -15,6 +15,7 @@ static const int SEGMENTS = 32;
 
 static float vertices[(SEGMENTS + 2) * 3];
 static unsigned int indices[SEGMENTS * 3];
+const float VISUAL_G = 10.0f;
 
 
 static void GenerateCircle()
@@ -221,7 +222,7 @@ void Renderer::DrawTrail(const Body& body)
 
     glBindVertexArray(trailVAO);
 
-    glLineWidth(3.0f);
+    glLineWidth(1.0f);
 
     glDrawArrays(
         GL_LINE_STRIP,
@@ -337,7 +338,7 @@ void Renderer::GenerateSphere()
 
 void Renderer::GenerateGravityMesh()
 {
-    const int GRID_SIZE = 50;
+    const int GRID_SIZE = 150;
 
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
@@ -356,7 +357,6 @@ void Renderer::GenerateGravityMesh()
             float worldZ =
                 -WORLD_HEIGHT / 2.0f + z * spacingZ;
 
-            // Start completely flat
             vertices.push_back(worldX);
             vertices.push_back(0.0f);
             vertices.push_back(worldZ);
@@ -389,7 +389,8 @@ void Renderer::GenerateGravityMesh()
         }
     }
 
-    gravityIndexCount = static_cast<unsigned int>(indices.size());
+    gravityIndexCount =
+        static_cast<unsigned int>(indices.size());
 
     glGenVertexArrays(1, &gravityVAO);
     glGenBuffers(1, &gravityVBO);
@@ -429,8 +430,8 @@ void Renderer::GenerateGravityMesh()
     glBindVertexArray(0);
 
     std::cout << "Gravity indices: "
-          << gravityIndexCount
-          << std::endl;
+              << gravityIndexCount
+              << std::endl;
 }
 
 void Renderer::DrawGravityMesh()
@@ -465,4 +466,72 @@ void Renderer::DrawGravityMesh()
     );
 
     glBindVertexArray(0);
+}
+
+void Renderer::UpdateGravityMesh(
+    const std::vector<Body*>& bodies,
+    float gravitationalConstant)
+{
+    const int GRID_SIZE = 150;
+
+    const float VISUAL_SCALE = 0.01f;
+    const float MIN_DISTANCE = 1.0f;
+
+    std::vector<float> vertices;
+
+    float spacingX =
+        WORLD_WIDTH / (GRID_SIZE - 1);
+
+    float spacingZ =
+        WORLD_HEIGHT / (GRID_SIZE - 1);
+
+    for (int z = 0; z < GRID_SIZE; z++)
+    {
+        for (int x = 0; x < GRID_SIZE; x++)
+        {
+            float worldX =
+                -WORLD_WIDTH / 2.0f + x * spacingX;
+
+            float worldZ =
+                -WORLD_HEIGHT / 2.0f + z * spacingZ;
+
+            float height = 0.0f;
+
+            for (const Body* body : bodies)
+            {
+                float dx =
+                    worldX - body->position.x;
+
+                float dz =
+                    worldZ - body->position.y;
+
+                float distance =
+                    std::sqrt(dx * dx + dz * dz);
+
+                distance =
+                    std::max(distance, MIN_DISTANCE);
+
+                height -=
+                    (gravitationalConstant *
+                     body->mass /
+                     distance) *
+                    VISUAL_SCALE;
+            }
+
+            vertices.push_back(worldX);
+            vertices.push_back(height);
+            vertices.push_back(worldZ);
+        }
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, gravityVBO);
+
+    glBufferSubData(
+        GL_ARRAY_BUFFER,
+        0,
+        vertices.size() * sizeof(float),
+        vertices.data()
+    );
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

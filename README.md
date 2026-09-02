@@ -2,7 +2,7 @@
 Core 2D physics module for my orbital motion simulation project
 
 ## Current features
-- Rendering
+- 3d Rendering
 - Collisions
 - Click to spawn bodies
 
@@ -13,3 +13,6 @@ mkdir build && cd build
 cmake ..  
 cmake --build .  
 ./Debug/PhysicsEngine.exe
+
+Grav mesh well rn: h(x,z)=−VISUAL_SCALE ∑_i​(G*m_i​​​/r_i​)
+​

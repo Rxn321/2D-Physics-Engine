@@ -153,6 +153,9 @@ int main()
         physicsWorld.Update(dt);
 
 
+        renderer.UpdateGravityMesh(physicsWorld.bodies, physicsWorld.G);
+        renderer.DrawGravityMesh();
+
         for (Body* b : physicsWorld.bodies)
         {
             
